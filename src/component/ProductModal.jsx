@@ -1,17 +1,36 @@
 /* eslint-disable react/prop-types */
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { apiService } from "../apiService/apiService";
 import { Modal } from "bootstrap";
-
+const APIPath = import.meta.env.VITE_API_PATH;
 const ProductModal = (props) => {
-  const { tempProduct, setIsProductModalOpen, isProductModalOpen } = props;
+  const { tempProduct, setIsProductModalOpen, isProductModalOpen, setReload } =
+    props;
   const productModalRef = useRef(null);
+  const [qtySelect, setQtySelect] = useState(1);
 
   const closeProductModal = () => {
     const modalInstance = Modal.getInstance(productModalRef.current);
     modalInstance.hide();
     setIsProductModalOpen(false);
   };
-
+  const addProductTocart = async () => {
+    try {
+      const postData = {
+        data: {
+          product_id: tempProduct.id,
+          qty: qtySelect,
+        },
+      };
+      const response = await apiService.axiosPost(
+        `/api/${APIPath}/cart`,
+        postData
+      );
+      setReload(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     if (productModalRef.current)
       new Modal(productModalRef.current, { backdrop: false });
@@ -61,8 +80,8 @@ const ProductModal = (props) => {
               <div className="input-group align-items-center">
                 <label htmlFor="qtySelect">數量：</label>
                 <select
-                  // value={qtySelect}
-                  // onChange={(e) => setQtySelect(e.target.value)}
+                  value={qtySelect}
+                  onChange={(e) => setQtySelect(parseInt(e.target.value))}
                   id="qtySelect"
                   className="form-select"
                 >
@@ -73,7 +92,11 @@ const ProductModal = (props) => {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-primary">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={addProductTocart}
+              >
                 加入購物車
               </button>
               <button

@@ -11,7 +11,12 @@ userInstance.interceptors.request.use((config)=>{
 userInstance.interceptors.response.use(
   (response)=>response,
   (error)=>{
-    const { data,status } = error.response;
-    return Promise.reject(error);
+    const errors = 
+    error.response?.data.message 
+      ? `狀態: ${error.status}, ${error.response.data.message}` 
+      : error;
+    //
+    // alert(errors);
+    return Promise.reject(errors);
   }
 );
