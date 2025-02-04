@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useEffect, useState } from "react";
+import ReactLoading from "react-loading";
 import { apiService } from "../apiService/apiService";
 import { Modal } from "bootstrap";
 const APIPath = import.meta.env.VITE_API_PATH;
@@ -8,13 +9,15 @@ const ProductModal = (props) => {
     props;
   const productModalRef = useRef(null);
   const [qtySelect, setQtySelect] = useState(1);
-
+  const [isLoading, setIsLoading] = useState(false);
   const closeProductModal = () => {
     const modalInstance = Modal.getInstance(productModalRef.current);
     modalInstance.hide();
     setIsProductModalOpen(false);
+    setQtySelect(1);
   };
   const addProductTocart = async () => {
+    setIsLoading(true);
     try {
       const postData = {
         data: {
@@ -27,8 +30,11 @@ const ProductModal = (props) => {
         postData
       );
       setReload(true);
+      closeProductModal();
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -45,7 +51,7 @@ const ProductModal = (props) => {
     <>
       <div
         ref={productModalRef}
-        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999 }}
         className="modal fade"
         id="productModal"
         tabIndex="-1"
@@ -111,6 +117,19 @@ const ProductModal = (props) => {
           </div>
         </div>
       </div>
+      {isLoading && (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(255,255,255,0.6)",
+            zIndex: 999,
+          }}
+        >
+          <ReactLoading type="spin" color="black" width="4rem" height="4rem" />
+        </div>
+      )}
     </>
   );
 };

@@ -2,11 +2,12 @@
 import { apiService } from "../apiService/apiService";
 const APIPath = import.meta.env.VITE_API_PATH;
 const Product = (props) => {
-  const { product, handleSeeMore, setReload } = props;
+  const { product, handleSeeMore, setReload, setIsLoading } = props;
   const atHandleSeeMore = () => {
     handleSeeMore(product.id);
   };
   const handleAddProductToCart = async () => {
+    setIsLoading(true);
     try {
       const postData = {
         data: {
@@ -18,6 +19,8 @@ const Product = (props) => {
       setReload(true);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (

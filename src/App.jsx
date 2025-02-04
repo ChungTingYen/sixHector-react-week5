@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReactLoading from "react-loading";
 import { apiService } from "./apiService/apiService";
-import { Modal } from "bootstrap";
+// import { Modal } from "bootstrap";
 import { tempProductDefaultValue } from "./data/data";
 import { Product, ProductModal } from "./component";
 const APIPath = import.meta.env.VITE_API_PATH;
@@ -10,9 +12,40 @@ function App() {
   const [cart, setCart] = useState({});
   const [reload, setReload] = useState(true);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const cartRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
   // const [productDetail, setProductDetail] = useState(null);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+  const onSubmit = handleSubmit((data) => {
+    const { message, ...user } = data;
+    const userInfo = {
+      data: {
+        user,
+        message,
+      },
+    };
+    checkOrder(userInfo);
+  });
+  const checkOrder = async (userInfo) => {
+    setIsLoading(true);
+    try {
+      const {
+        data: { total, orderId, success, message },
+      } = await apiService.axiosPost(`/api/${APIPath}/order`, userInfo);
+      setReload(true);
+      reset();
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSeeMore = (productId) => {
     const temp = products.find((item) => item.id === productId);
     setTempProduct(temp);
@@ -21,12 +54,15 @@ function App() {
   const handleDeleteCart = async (cartId = null) => {
     //如果有cardId就是刪除一個，沒有就是刪除全部
     const path = `api/${APIPath}/cart` + (cartId ? `/${cartId}` : "s");
+    setIsLoading(true);
     try {
       await apiService.axiosDelete(path);
       setReload(true);
     } catch (error) {
       console.log(error);
       alert(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   const getCart = async () => {
@@ -41,6 +77,7 @@ function App() {
     }
   };
   const getProducts = async () => {
+    setIsLoading(true);
     try {
       const {
         data: { products, pagination, success, message },
@@ -48,6 +85,8 @@ function App() {
       setProducts(products);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,6 +94,7 @@ function App() {
     setIsProductModalOpen(true);
   };
   const handleIncreDecreProduct = async (cartId, type) => {
+    setIsLoading(true);
     try {
       const tempCart = { ...cart };
       const { product, qty } = tempCart.carts.find(
@@ -70,6 +110,9 @@ function App() {
       setReload(true);
     } catch (error) {
       console.log(error);
+      alert(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -80,8 +123,8 @@ function App() {
     }
   }, [reload]);
   // useEffect(() => {
-  //   console.log(cart.carts?.length);
-  // });
+  //   console.log("isLoading:", isLoading);
+  // }, [isLoading]);
   return (
     <>
       <div className="container">
@@ -102,6 +145,7 @@ function App() {
                   handleSeeMore={handleSeeMore}
                   product={product}
                   setReload={setReload}
+                  setIsLoading={setIsLoading}
                 ></Product>
               ))}
             </tbody>
@@ -213,15 +257,136 @@ function App() {
             </tfoot>
           </table>
         </div>
+        {cart.carts?.length > 0 && (
+          <div className="my-5 row justify-content-center">
+            <form className="col-md-6" onSubmit={onSubmit}>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className={`form-control ${errors.email && "is-invalid"}`}
+                  placeholder="請輸入 Email"
+                  {...register("email", {
+                    required: "Email欄位必填",
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: "email 格式錯誤",
+                    },
+                  })}
+                />
+                {errors.email && (
+                  <p className="text-danger my-2">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                  收件人姓名
+                </label>
+                <input
+                  id="name"
+                  className={`form-control ${errors.name && "is-invalid"}`}
+                  placeholder="請輸入姓名"
+                  {...register("name", {
+                    required: "姓名為必填",
+                  })}
+                />
+                {errors.name && (
+                  <p className="text-danger my-2">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="tel" className="form-label">
+                  收件人電話
+                </label>
+                <input
+                  id="tel"
+                  type="text"
+                  className={`form-control ${errors.tel && "is-invalid"}`}
+                  placeholder="請輸入電話"
+                  {...register("tel", {
+                    required: "電話欄位為必填",
+                    pattern: {
+                      value: /^(0[2-8]\d{7}|09\d{8})$/,
+                      message: "電話格式錯誤",
+                    },
+                  })}
+                />
+                {errors.tel && (
+                  <p className="text-danger my-2">{errors.tel.message}</p>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  收件人地址
+                </label>
+                <input
+                  id="address"
+                  type="text"
+                  className={`form-control ${errors.address && "is-invalid"}`}
+                  placeholder="請輸入地址"
+                  {...register("address", {
+                    required: "地址欄位為必填",
+                    minLength: {
+                      value: 8,
+                      message: "地址至少需要輸入8個字",
+                    },
+                  })}
+                />
+                {errors.address && (
+                  <p className="text-danger my-2">{errors.address.message}</p>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="message" className="form-label">
+                  留言
+                </label>
+                <textarea
+                  id="message"
+                  className="form-control"
+                  cols="30"
+                  rows="10"
+                  {...register("message")}
+                ></textarea>
+              </div>
+              <div className="text-end">
+                <button type="submit" className="btn btn-danger">
+                  送出訂單
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
       <ProductModal
         tempProduct={tempProduct}
+        setTempProduct={setTempProduct}
         isProductModalOpen={isProductModalOpen}
         setIsProductModalOpen={setIsProductModalOpen}
         setReload={setReload}
+        setIsLoading={setIsLoading}
       />
+      {isLoading && (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(255,255,255,0.6)",
+            zIndex: 999,
+          }}
+        >
+          <ReactLoading type="spin" color="black" width="4rem" height="4rem" />
+        </div>
+      )}
     </>
   );
 }
