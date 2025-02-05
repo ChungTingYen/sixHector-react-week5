@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { apiService } from "./apiService/apiService";
 import { tempProductDefaultValue } from "./data/data";
-import { Product, ProductModal,CustomerInfo,LoadingOverlay,Carts } from "./component";
+import { toastInfo } from "./data/dataModel";
+import { Product, ProductModal,CustomerInfo,LoadingOverlay,Carts,Toast } from "./component";
+import { LoadingContext } from './component/LoadingContext';
 const APIPath = import.meta.env.VITE_API_PATH;
 function App() {
   const [products, setProducts] = useState([]);
@@ -10,7 +12,14 @@ function App() {
   const [reload, setReload] = useState(true);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [isShowToast,setIsShowToast] = useState(false);
+
+  const setToastContent = (toastText,type)=>{
+    setIsShowToast(true);
+    toastInfo.toastText = toastText;
+    toastInfo.type = type;
+  };
+
   const handleSeeMore = (productId) => {
     const temp = products.find((item) => item.id === productId);
     setTempProduct(temp);
@@ -23,9 +32,11 @@ function App() {
     try {
       await apiService.axiosDelete(path);
       setReload(true);
+      setToastContent('執行完成','success');
     } catch (error) {
       console.log(error);
       alert(error);
+      setToastContent('執行失敗','error');
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +99,7 @@ function App() {
                   product={product}
                   setReload={setReload}
                   setIsLoading={setIsLoading}
+                  setToastContent={setToastContent}
                 ></Product>
               ))}
             </tbody>
@@ -105,7 +117,9 @@ function App() {
             <tbody>
               {cart.carts?.length > 0 &&
                 cart.carts.map((cart) => (
-                  <Carts key={cart.id} cart={cart} setIsLoading={setIsLoading} setReload={setReload} handleDeleteCart={handleDeleteCart}/>
+                  <Carts key={cart.id} cart={cart} setIsLoading={setIsLoading} setReload={setReload} handleDeleteCart={handleDeleteCart}
+                    setToastContent={setToastContent}
+                  />
                 ))}
             </tbody>
             <tfoot>
@@ -142,8 +156,14 @@ function App() {
         isProductModalOpen={isProductModalOpen}
         setIsProductModalOpen={setIsProductModalOpen}
         setReload={setReload}
+        setToastContent={setToastContent}
       />
       {isLoading &&  <LoadingOverlay/>}
+
+      <Toast toastText={toastInfo.toastText}
+        type = {toastInfo.type}
+        isShowToast={isShowToast} 
+        setIsShowToast={setIsShowToast}/>
     </>
   );
 }

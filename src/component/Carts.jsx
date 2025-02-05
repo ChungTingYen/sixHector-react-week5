@@ -2,7 +2,7 @@
 import { apiService } from "../apiService/apiService";
 const APIPath = import.meta.env.VITE_API_PATH;
 const Carts = (props)=>{
-  const { cart,setIsLoading,setReload,handleDeleteCart } = props;
+  const { cart,setIsLoading,setReload,handleDeleteCart,setToastContent } = props;
   const handleIncreDecreProduct = async (cartId, type) => {
     setIsLoading(true);
     try {
@@ -14,8 +14,10 @@ const Carts = (props)=>{
       };
       await apiService.axiosPut(`/api/${APIPath}/cart/${cartId}`, putData);
       setReload(true);
+      setToastContent('執行完成','success');
     } catch (error) {
       console.log(error);
+      setToastContent('執行失敗','error');
       alert(error);
     } finally {
       setIsLoading(false);
@@ -34,7 +36,7 @@ const Carts = (props)=>{
         </button>
       </td>
       <td>{cart.product.title}</td>
-      <td
+      <td 
         style={{
           width: "100px",
           height: "100px",

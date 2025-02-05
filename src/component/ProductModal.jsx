@@ -6,7 +6,7 @@ import { Modal } from "bootstrap";
 
 const APIPath = import.meta.env.VITE_API_PATH;
 const ProductModal = (props) => {
-  const { tempProduct, setIsProductModalOpen, isProductModalOpen, setReload } =
+  const { tempProduct, setIsProductModalOpen, isProductModalOpen,setReload, setToastContent } =
     props;
   const productModalRef = useRef(null);
   const [qtySelect, setQtySelect] = useState(1);
@@ -37,8 +37,10 @@ const ProductModal = (props) => {
       );
       // setReload(true);
       // closeProductModal();
+      setToastContent('執行完成','success');
     } catch (error) {
       console.log(error);
+      setToastContent('執行失敗','error');
     } finally {
       setIsLoading(false);
     }

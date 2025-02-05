@@ -2,7 +2,7 @@
 import { apiService } from "../apiService/apiService";
 const APIPath = import.meta.env.VITE_API_PATH;
 const Product = (props) => {
-  const { product, handleSeeMore, setReload, setIsLoading } = props;
+  const { product, handleSeeMore, setReload, setIsLoading,setToastContent } = props;
   const atHandleSeeMore = () => {
     handleSeeMore(product.id);
   };
@@ -17,8 +17,10 @@ const Product = (props) => {
       };
       await apiService.axiosPost(`/api/${APIPath}/cart`, postData);
       setReload(true);
+      setToastContent('執行完成','success');
     } catch (error) {
       console.log(error);
+      setToastContent('執行失敗','error');
     } finally {
       setIsLoading(false);
     }
