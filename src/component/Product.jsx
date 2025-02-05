@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 import { apiService } from "../apiService/apiService";
+import { useLoading } from "./LoadingContext";
 const APIPath = import.meta.env.VITE_API_PATH;
 const Product = (props) => {
-  const { product, handleSeeMore, setReload, setIsLoading,setToastContent } = props;
+  const { product, handleSeeMore } = props;
+  const { setReload, setIsLoading, setToastContent } = useLoading();
   const atHandleSeeMore = () => {
     handleSeeMore(product.id);
   };
@@ -17,10 +19,10 @@ const Product = (props) => {
       };
       await apiService.axiosPost(`/api/${APIPath}/cart`, postData);
       setReload(true);
-      setToastContent('執行完成','success');
+      setToastContent("執行完成", "success");
     } catch (error) {
       console.log(error);
-      setToastContent('執行失敗','error');
+      setToastContent("執行失敗", "error");
     } finally {
       setIsLoading(false);
     }

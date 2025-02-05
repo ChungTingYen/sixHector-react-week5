@@ -2,8 +2,15 @@ import { useEffect, useState } from "react";
 import { apiService } from "./apiService/apiService";
 import { tempProductDefaultValue } from "./data/data";
 import { toastInfo } from "./data/dataModel";
-import { Product, ProductModal,CustomerInfo,LoadingOverlay,Carts,Toast } from "./component";
-import { LoadingContext } from './component/LoadingContext';
+import {
+  Product,
+  ProductModal,
+  CustomerInfo,
+  LoadingOverlay,
+  Carts,
+  Toast,
+} from "./component";
+import { LoadingContext } from "./component/LoadingContext";
 const APIPath = import.meta.env.VITE_API_PATH;
 function App() {
   const [products, setProducts] = useState([]);
@@ -12,9 +19,9 @@ function App() {
   const [reload, setReload] = useState(true);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isShowToast,setIsShowToast] = useState(false);
+  const [isShowToast, setIsShowToast] = useState(false);
 
-  const setToastContent = (toastText,type)=>{
+  const setToastContent = (toastText, type) => {
     setIsShowToast(true);
     toastInfo.toastText = toastText;
     toastInfo.type = type;
@@ -32,11 +39,11 @@ function App() {
     try {
       await apiService.axiosDelete(path);
       setReload(true);
-      setToastContent('執行完成','success');
+      setToastContent("執行完成", "success");
     } catch (error) {
       console.log(error);
       alert(error);
-      setToastContent('執行失敗','error');
+      setToastContent("執行失敗", "error");
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +76,11 @@ function App() {
   const openProductDetailModal = () => {
     setIsProductModalOpen(true);
   };
-  
+  const loadingContextValue = {
+    setReload,
+    setIsLoading,
+    setToastContent,
+  };
   useEffect(() => {
     if (reload) {
       getProducts();
@@ -80,90 +91,102 @@ function App() {
 
   return (
     <>
-      <div className="container">
-        <div className="mt-4">
-          <table className="table align-middle">
-            <thead>
-              <tr>
-                <th>圖片</th>
-                <th>商品名稱</th>
-                <th>價格</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <Product
-                  key={product.id}
-                  handleSeeMore={handleSeeMore}
-                  product={product}
-                  setReload={setReload}
-                  setIsLoading={setIsLoading}
-                  setToastContent={setToastContent}
-                ></Product>
-              ))}
-            </tbody>
-          </table>
-          <table className="table align-middle">
-            <thead>
-              <tr>
-                <th>刪除</th>
-                <th style={{ width: "30%" }}>品名</th>
-                <th>圖片</th>
-                <th className="text-center">數量 / 單位</th>
-                <th className="text-end">單價</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cart.carts?.length > 0 &&
-                cart.carts.map((cart) => (
-                  <Carts key={cart.id} cart={cart} setIsLoading={setIsLoading} setReload={setReload} handleDeleteCart={handleDeleteCart}
-                    setToastContent={setToastContent}
-                  />
+      <LoadingContext.Provider value={loadingContextValue}>
+        <div className="container">
+          <div className="mt-4">
+            <table className="table align-middle">
+              <thead>
+                <tr>
+                  <th>圖片</th>
+                  <th>商品名稱</th>
+                  <th>價格</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <Product
+                    key={product.id}
+                    handleSeeMore={handleSeeMore}
+                    product={product}
+                    // setReload={setReload}
+                    // setIsLoading={setIsLoading}
+                    // setToastContent={setToastContent}
+                  ></Product>
                 ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td style={{ width: "150px" }}>
-                  {cart.carts?.length > 0 ? (
-                    <button
-                      className="btn btn-danger"
-                      disabled={cart.carts?.length <= 0}
-                      style={{ width: "80%" }}
-                      onClick={() => handleDeleteCart(null)}
-                    >
-                      刪除購物車
-                    </button>
-                  ) : (
-                    <span className="text-start">購物車沒有商品</span>
-                  )}
-                </td>
-                <td colSpan="6" className="text-end">
-                  總計：{cart.total}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </tbody>
+            </table>
+            <table className="table align-middle">
+              <thead>
+                <tr>
+                  <th>刪除</th>
+                  <th style={{ width: "30%" }}>品名</th>
+                  <th>圖片</th>
+                  <th className="text-center">數量 / 單位</th>
+                  <th className="text-end">單價</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cart.carts?.length > 0 &&
+                  cart.carts.map((cart) => (
+                    <Carts
+                      key={cart.id}
+                      cart={cart}
+                      handleDeleteCart={handleDeleteCart}
+                      // setIsLoading={setIsLoading}
+                      // setReload={setReload}
+                      // setToastContent={setToastContent}
+                    />
+                  ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td style={{ width: "150px" }}>
+                    {cart.carts?.length > 0 ? (
+                      <button
+                        className="btn btn-danger"
+                        disabled={cart.carts?.length <= 0}
+                        style={{ width: "80%" }}
+                        onClick={() => handleDeleteCart(null)}
+                      >
+                        刪除購物車
+                      </button>
+                    ) : (
+                      <span className="text-start">購物車沒有商品</span>
+                    )}
+                  </td>
+                  <td colSpan="6" className="text-end">
+                    總計：{cart.total}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          {cart.carts?.length > 0 && (
+            <CustomerInfo
+            // setIsLoading={setIsLoading}
+            // setReload={setReload}
+            // setToastContent={setToastContent}
+            />
+          )}
         </div>
-        {cart.carts?.length > 0 && 
-          <CustomerInfo setIsLoading={setIsLoading} setReload={setReload}/>
-        }
-      </div>
 
-      {/* Modal */}
-      <ProductModal
-        tempProduct={tempProduct}
-        isProductModalOpen={isProductModalOpen}
-        setIsProductModalOpen={setIsProductModalOpen}
-        setReload={setReload}
-        setToastContent={setToastContent}
+        {/* Modal */}
+        <ProductModal
+          tempProduct={tempProduct}
+          isProductModalOpen={isProductModalOpen}
+          setIsProductModalOpen={setIsProductModalOpen}
+          // setReload={setReload}
+          // setToastContent={setToastContent}
+        />
+      </LoadingContext.Provider>
+      {isLoading && <LoadingOverlay />}
+      <Toast
+        toastText={toastInfo.toastText}
+        type={toastInfo.type}
+        isShowToast={isShowToast}
+        setIsShowToast={setIsShowToast}
       />
-      {isLoading &&  <LoadingOverlay/>}
-
-      <Toast toastText={toastInfo.toastText}
-        type = {toastInfo.type}
-        isShowToast={isShowToast} 
-        setIsShowToast={setIsShowToast}/>
     </>
   );
 }

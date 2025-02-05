@@ -3,11 +3,17 @@ import { useRef, useEffect, useState } from "react";
 import ReactLoading from "react-loading";
 import { apiService } from "../apiService/apiService";
 import { Modal } from "bootstrap";
-
+import { useLoading } from "../component/LoadingContext";
 const APIPath = import.meta.env.VITE_API_PATH;
 const ProductModal = (props) => {
-  const { tempProduct, setIsProductModalOpen, isProductModalOpen,setReload, setToastContent } =
-    props;
+  const {
+    tempProduct,
+    setIsProductModalOpen,
+    isProductModalOpen,
+    // setReload,
+    // setToastContent,
+  } = props;
+  const { setReload, setToastContent } = useLoading();
   const productModalRef = useRef(null);
   const [qtySelect, setQtySelect] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,10 +43,10 @@ const ProductModal = (props) => {
       );
       // setReload(true);
       // closeProductModal();
-      setToastContent('執行完成','success');
+      setToastContent("執行完成", "success");
     } catch (error) {
       console.log(error);
-      setToastContent('執行失敗','error');
+      setToastContent("執行失敗", "error");
     } finally {
       setIsLoading(false);
     }
@@ -112,12 +118,14 @@ const ProductModal = (props) => {
                 onClick={addProductTocart}
               >
                 <div>加入購物車ReactLoading</div>
-                {isLoading && <ReactLoading
-                  type={"spin"}
-                  color={"#000"}
-                  height={"1.5rem"}
-                  width={"1.5rem"}
-                />}
+                {isLoading && (
+                  <ReactLoading
+                    type={"spin"}
+                    color={"#000"}
+                    height={"1.5rem"}
+                    width={"1.5rem"}
+                  />
+                )}
               </button>
               <button
                 type="button"
