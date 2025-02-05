@@ -24,7 +24,7 @@ const Product = (props) => {
     }
   };
   return (
-    <tr key={product.id}>
+    <tr>
       <td
         style={{
           width: "150px",

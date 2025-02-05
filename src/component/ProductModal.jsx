@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import ReactLoading from "react-loading";
 import { apiService } from "../apiService/apiService";
 import { Modal } from "bootstrap";
+
 const APIPath = import.meta.env.VITE_API_PATH;
 const ProductModal = (props) => {
   const { tempProduct, setIsProductModalOpen, isProductModalOpen, setReload } =
@@ -15,6 +16,11 @@ const ProductModal = (props) => {
     modalInstance.hide();
     setIsProductModalOpen(false);
     setQtySelect(1);
+    setReload(true);
+  };
+  const openProductModal = () => {
+    const modalInstance = Modal.getInstance(productModalRef.current);
+    modalInstance.show();
   };
   const addProductTocart = async () => {
     setIsLoading(true);
@@ -29,8 +35,8 @@ const ProductModal = (props) => {
         `/api/${APIPath}/cart`,
         postData
       );
-      setReload(true);
-      closeProductModal();
+      // setReload(true);
+      // closeProductModal();
     } catch (error) {
       console.log(error);
     } finally {
@@ -43,8 +49,7 @@ const ProductModal = (props) => {
   }, []);
   useEffect(() => {
     if (isProductModalOpen) {
-      const modalInstance = Modal.getInstance(productModalRef.current);
-      modalInstance.show();
+      openProductModal();
     }
   }, [isProductModalOpen]);
   return (
@@ -100,10 +105,17 @@ const ProductModal = (props) => {
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-primary d-flex align-items-center gap-2"
+                disabled={isLoading}
                 onClick={addProductTocart}
               >
-                加入購物車
+                <div>加入購物車ReactLoading</div>
+                {isLoading && <ReactLoading
+                  type={"spin"}
+                  color={"#000"}
+                  height={"1.5rem"}
+                  width={"1.5rem"}
+                />}
               </button>
               <button
                 type="button"
@@ -117,19 +129,6 @@ const ProductModal = (props) => {
           </div>
         </div>
       </div>
-      {isLoading && (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(255,255,255,0.6)",
-            zIndex: 999,
-          }}
-        >
-          <ReactLoading type="spin" color="black" width="4rem" height="4rem" />
-        </div>
-      )}
     </>
   );
 };
