@@ -80,7 +80,7 @@ const CustomerInfo = () => {
         <Input label='收件人姓名' id='name' name='name' type='text' placeholder="請輸入姓名" register={register} 
           rules={registerRules.name}
           errors={errors} />
-        <Input label='收件人電話' id='tel' type='text' name='tel' placeholder="請輸入電話" register={register} 
+        <Input label='收件人電話' id='tel' type='tel' name='tel' placeholder="請輸入電話" register={register} 
           rules={registerRules.tel}
           errors={errors} />
         <Input label='收件人地址' id='address' name='address' type='text' placeholder="請輸入地址" register={register} 
