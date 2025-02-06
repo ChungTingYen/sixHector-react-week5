@@ -1,18 +1,49 @@
+/* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { apiService } from "../apiService/apiService";
 import { useLoading } from "../component/LoadingContext";
+import { registerRules } from "../data/data";
 const APIPath = import.meta.env.VITE_API_PATH;
 
+const Input = (props)=>{
+  const { label,id,name,type,placeholder,register,rules,errors } = props;
+  return (<>
+    <div className="mb-3">
+      <label htmlFor={id} className="form-label">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        className={`form-control ${errors[id] && "is-invalid"}`}
+        placeholder={placeholder}
+        {...register( id, rules )}
+      />
+      {errors[id] && (
+        <p className="text-danger my-2">{errors[id]?.message}</p>
+      )}
+    </div>
+  </>);
+};
+
 const CustomerInfo = () => {
-  // const { setIsLoading, setReload } = props;
   const { setIsLoading, setReload, setToastContent } = useLoading();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
-
+    watch,
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      tel: "",
+      address:""
+    },mode:'onTouched' 
+  });
+  
   const onSubmit = handleSubmit((data) => {
     const { message, ...user } = data;
     const userInfo = {
@@ -43,85 +74,18 @@ const CustomerInfo = () => {
   return (
     <div className="my-5 row justify-content-center">
       <form className="col-md-6" onSubmit={onSubmit}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            className={`form-control ${errors.email && "is-invalid"}`}
-            placeholder="請輸入 Email"
-            {...register("email", {
-              required: "Email欄位必填",
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "email 格式錯誤",
-              },
-            })}
-          />
-          {errors.email && (
-            <p className="text-danger my-2">{errors.email.message}</p>
-          )}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">
-            收件人姓名
-          </label>
-          <input
-            id="name"
-            className={`form-control ${errors.name && "is-invalid"}`}
-            placeholder="請輸入姓名"
-            {...register("name", {
-              required: "姓名為必填",
-            })}
-          />
-          {errors.name && (
-            <p className="text-danger my-2">{errors.name.message}</p>
-          )}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="tel" className="form-label">
-            收件人電話
-          </label>
-          <input
-            id="tel"
-            type="text"
-            className={`form-control ${errors.tel && "is-invalid"}`}
-            placeholder="請輸入電話"
-            {...register("tel", {
-              required: "電話欄位為必填",
-              pattern: {
-                value: /^(0[2-8]\d{7}|09\d{8})$/,
-                message: "電話格式錯誤",
-              },
-            })}
-          />
-          {errors.tel && (
-            <p className="text-danger my-2">{errors.tel.message}</p>
-          )}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="address" className="form-label">
-            收件人地址
-          </label>
-          <input
-            id="address"
-            type="text"
-            className={`form-control ${errors.address && "is-invalid"}`}
-            placeholder="請輸入地址"
-            {...register("address", {
-              required: "地址欄位為必填",
-              minLength: {
-                value: 6,
-                message: "地址至少需要輸入6個字",
-              },
-            })}
-          />
-          {errors.address && (
-            <p className="text-danger my-2">{errors.address.message}</p>
-          )}
-        </div>
+        <Input label='Email' id='email' name='email' type='email' placeholder="請輸入 Email" register={register} 
+          rules={registerRules.email}
+          errors={errors} />
+        <Input label='收件人姓名' id='name' name='name' type='text' placeholder="請輸入姓名" register={register} 
+          rules={registerRules.name}
+          errors={errors} />
+        <Input label='收件人電話' id='tel' type='text' name='tel' placeholder="請輸入電話" register={register} 
+          rules={registerRules.tel}
+          errors={errors} />
+        <Input label='收件人地址' id='address' name='address' type='text' placeholder="請輸入地址" register={register} 
+          rules={registerRules.address}
+          errors={errors} />
         <div className="mb-3">
           <label htmlFor="message" className="form-label">
             留言

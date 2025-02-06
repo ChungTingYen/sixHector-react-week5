@@ -109,9 +109,6 @@ function App() {
                     key={product.id}
                     handleSeeMore={handleSeeMore}
                     product={product}
-                    // setReload={setReload}
-                    // setIsLoading={setIsLoading}
-                    // setToastContent={setToastContent}
                   ></Product>
                 ))}
               </tbody>
@@ -133,9 +130,6 @@ function App() {
                       key={cart.id}
                       cart={cart}
                       handleDeleteCart={handleDeleteCart}
-                      // setIsLoading={setIsLoading}
-                      // setReload={setReload}
-                      // setToastContent={setToastContent}
                     />
                   ))}
               </tbody>
@@ -163,11 +157,7 @@ function App() {
             </table>
           </div>
           {cart.carts?.length > 0 && (
-            <CustomerInfo
-            // setIsLoading={setIsLoading}
-            // setReload={setReload}
-            // setToastContent={setToastContent}
-            />
+            <CustomerInfo/>
           )}
         </div>
 
@@ -176,8 +166,6 @@ function App() {
           tempProduct={tempProduct}
           isProductModalOpen={isProductModalOpen}
           setIsProductModalOpen={setIsProductModalOpen}
-          // setReload={setReload}
-          // setToastContent={setToastContent}
         />
       </LoadingContext.Provider>
       {isLoading && <LoadingOverlay />}
